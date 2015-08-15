@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace ReTarget
 {
+    //REF: https://msdn.microsoft.com/library/mt148501(v=vs.140).aspx
+
     public class ReTarget
     {
         readonly string SolutionPath, SolutionName;
@@ -16,10 +16,10 @@ namespace ReTarget
 
         readonly XNamespace msbuildNamespace;
 
-        public Dictionary<string, List<string>> ManuallyToRestoreNuGetPackages = 
+        public Dictionary<string, List<string>> ManuallyToRestoreNuGetPackages =
             new Dictionary<string, List<string>>();
 
-        public ReTarget(string solutionPath, string solutionName) : 
+        public ReTarget(string solutionPath, string solutionName) :
             this(solutionPath, solutionName, null)
         { }
 
@@ -42,7 +42,7 @@ namespace ReTarget
             {
                 solutionContentLines = File.ReadLines(fullSolutionPath);
             }
-            catch(FileNotFoundException)
+            catch (FileNotFoundException)
             {
                 Log($"Unable to open Solution {fullSolutionPath}. Check your path and solution name.");
                 return;
@@ -86,7 +86,7 @@ namespace ReTarget
 
                 Log($"Converting Project {projectPath}");
 
-                if(!File.Exists(fullProjectpath))
+                if (!File.Exists(fullProjectpath))
                 {
                     Log($"\tCould not find project {fullProjectpath}.");
                     return;
@@ -112,10 +112,10 @@ namespace ReTarget
 
                 projectData.Save(fullProjectpath);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Log("\tConversion failed!");
-                
+
             }
             finally
             {
@@ -123,6 +123,8 @@ namespace ReTarget
             }
         }
 
+        //Delete the file packages.config, and create a new .json file in this folder.Name the file: 
+        //project.json
         private void AddProjectJsonFile(string projectPath, bool restoreInsightsPackage)
         {
             File.Delete(projectPath + "\\packages.config");
@@ -156,6 +158,9 @@ namespace ReTarget
             Log("\tCreated project.json file");
         }
 
+        //Find the<ItemGroup> element that contains an <AppxManifest> element.
+        //If there is a <None> element with an Include attribute set to: packages.config, delete it. 
+        //Also, add a <None> element with an Include attribute and set its value to: project.json.
         private void EditOrAddProjectJsonInclude(XDocument projectData)
         {
             var packagesConfig = projectData.Descendants(msbuildNamespace + "None").Where(a => (a.Attribute("Include")?.Value ?? "") == "packages.config").FirstOrDefault();
@@ -176,6 +181,12 @@ namespace ReTarget
             }
         }
 
+        //Find the<ItemGroup> that has <Reference> children elements to NuGet packages.
+        //Take note of the NuGet packages that are referenced, because you will need this 
+        //information for a future step.One significant difference between the Windows 10 
+        //project format between Visual Studio 2015 RC and Visual Studio 2015 RTM is that the 
+        //RTM format uses NuGet version 3. 
+        //Remove the <ItemGroup> and all its children.
         private bool DeleteLegacyNuGetIncludes(XDocument projectData, string projectPath)
         {
             bool shouldTryRestoreInsightsPckg = false;
@@ -204,6 +215,8 @@ namespace ReTarget
             return shouldTryRestoreInsightsPckg;
         }
 
+        //Find and delete the<Import> elements with Project and Condition attributes that 
+        //reference Microsoft.Diagnostics.Tracing.EventSource and Microsoft.ApplicationInsights
         private void DeleteImportsElement(XDocument projectData, string projectStartHint)
         {
             var importElement = projectData.Descendants(msbuildNamespace + "Import").Where(a => (a.Attribute("Project")?.Value ?? "").StartsWith(projectStartHint)).FirstOrDefault();
@@ -214,6 +227,8 @@ namespace ReTarget
             }
         }
 
+        //Find the <Target> element with a name attribute that has the value: 
+        //EnsureNuGetPackageBuildImports. Delete this element and all its children. 
         private void DeleteEnsureNuGetPackageBuildImports(XDocument projectData)
         {
             var targetEnsureNuGetPackageBuildImports = projectData.Descendants(msbuildNamespace + "Target").Where(a => (a.Attribute("Name")?.Value ?? "") == "EnsureNuGetPackageBuildImports");
@@ -224,6 +239,8 @@ namespace ReTarget
             }
         }
 
+        //If you added any references to UWP Extension SDKs(for example: the Windows Mobile SDK), 
+        //you will need to update the SDK version.For example this <SDKReference> element
         private void ChangeSDKReference(XDocument projectData)
         {
             var WindowsMobileRef = projectData.Descendants(msbuildNamespace + "SDKReference").Where(a => a.Attribute("Include").Value.StartsWith("WindowsMobile")).FirstOrDefault();
@@ -242,6 +259,10 @@ namespace ReTarget
             }
         }
 
+        //Find the<PropertyGroup> element that contains the <TargetPlatformVersion> 
+        //and<TargetPlatformMinVersion> elements. Change the existing value of the 
+        //<TargetPlatformVersion> and<TargetPlatformMinVersion> elements to be the same 
+        //version of the Universal Windows Platform that you have installed. 
         private void ChangePlatformVersion(XDocument projectData)
         {
             var targetPlatformElement = projectData.Element(msbuildNamespace + "Project").Element(msbuildNamespace + "PropertyGroup").Element(msbuildNamespace + "TargetPlatformVersion");
@@ -269,7 +290,7 @@ namespace ReTarget
 
         private string CheckSolutionName(string solutionName)
         {
-            if(!solutionName.EndsWith(".sln"))
+            if (!solutionName.EndsWith(".sln"))
             {
                 return string.Format("{0}.sln", solutionName);
             }
