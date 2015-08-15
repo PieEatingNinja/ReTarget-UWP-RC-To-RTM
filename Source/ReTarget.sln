@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReTarget.console", "ReTarget.console\ReTarget.console.csproj", "{B619372C-019D-44E4-AC32-767213679780}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReTarget", "ReTarget\ReTarget.csproj", "{AEF14E82-DABE-4694-AB8D-FD2C4C84D816}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B619372C-019D-44E4-AC32-767213679780}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B619372C-019D-44E4-AC32-767213679780}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B619372C-019D-44E4-AC32-767213679780}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B619372C-019D-44E4-AC32-767213679780}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEF14E82-DABE-4694-AB8D-FD2C4C84D816}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEF14E82-DABE-4694-AB8D-FD2C4C84D816}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEF14E82-DABE-4694-AB8D-FD2C4C84D816}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEF14E82-DABE-4694-AB8D-FD2C4C84D816}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
